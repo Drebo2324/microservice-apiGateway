@@ -1,7 +1,6 @@
 package com.drebo.microservices.gateway.routes;
 
 import org.springframework.cloud.gateway.server.mvc.filter.CircuitBreakerFilterFunctions;
-import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,6 +53,14 @@ public class Routes {
                 .filter(setPath("/api-docs"))
                 .build();
     }
+
+//    @Bean
+//    public RouterFunction<ServerResponse> inventoryServiceRoute(){
+//        return route("inventory_service")
+//                .route(RequestPredicates.path("/api/inventory"), HandlerFunctions.http("http://localhost:8083"))
+//                .filter(CircuitBreakerFilterFunctions.circuitBreaker("inventoryServiceCb", URI.create("forward:/fallbackRoute")))
+//                .build();
+//    }
 
     @Bean
     public RouterFunction<ServerResponse> inventoryServiceDocs(){
