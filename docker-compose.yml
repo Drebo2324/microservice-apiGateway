@@ -26,7 +26,7 @@ services:
     ports:
       - "8181:8080"
     volumes:
-      - ./docker/keycloak/realms/:/opt/keycloak/data/import/
+      - ./docker/keycloak/realms/:/opt/keycloak/data/import/ #mount realm-export.json to container
     depends_on:
       - keycloak-mysql
 
@@ -43,7 +43,28 @@ services:
       - --enable-feature=exemplar-storage
       - --config.file=/etc/prometheus/prometheus.yml
     volumes:
-      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro #mount config inside container
     ports:
       - '9090:9090'
+
+  tempo:
+    image: grafana/tempo:latest
+    command: [ '-config.file=/etc/tempo.yaml' ]
+    volumes:
+      - ./docker/tempo/tempo.yml:/etc/tempo.yaml:ro #mount config inside container
+      - ./docker/tempo/tempo-data:/tmp/tempo
+    ports:
+      - '3110:3100' # Tempo
+      - '9411:9411' # zipkin
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./docker/grafana:/etc/grafana/provisioning/datasources:ro #mount config inside container
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - '3000:3000'
 
