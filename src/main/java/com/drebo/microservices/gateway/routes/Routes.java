@@ -1,5 +1,6 @@
 package com.drebo.microservices.gateway.routes;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.server.mvc.filter.CircuitBreakerFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
@@ -17,11 +18,18 @@ import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouter
 @Configuration
 public class Routes {
 
+    @Value("${product.service.url}")
+    private String productServiceUrl;
+    @Value("${order.service.url}")
+    private String orderServiceUrl;
+    @Value("${inventory.service.url}")
+    private String inventoryServiceUrl;
+
     @Bean
     public RouterFunction<ServerResponse> productServiceRoute(){
         return route("product_service")
                 //condition -> destination
-                .route(RequestPredicates.path("/api/product"), HandlerFunctions.http("http://localhost:8081"))
+                .route(RequestPredicates.path("/api/product"), HandlerFunctions.http(productServiceUrl))
                 //if cb triggered forward request to fallback route
                 .filter(CircuitBreakerFilterFunctions.circuitBreaker("productServiceCb", URI.create("forward:/fallbackRoute")))
                 .build();
@@ -30,7 +38,7 @@ public class Routes {
     @Bean
     public RouterFunction<ServerResponse> productServiceDocs(){
         return route("product_service_docs")
-                .route(RequestPredicates.path("/aggregate/product-service/v3/api-docs"), HandlerFunctions.http("http://localhost:8081"))
+                .route(RequestPredicates.path("/aggregate/product-service/v3/api-docs"), HandlerFunctions.http(productServiceUrl))
                 .filter(CircuitBreakerFilterFunctions.circuitBreaker("productServiceDocsCb", URI.create("forward:/fallbackRoute")))
                 //route to .../api-docs instead of .../aggregate/product-service/v3/api-docs
                 .filter(setPath("/api-docs"))
@@ -40,7 +48,7 @@ public class Routes {
     @Bean
     public RouterFunction<ServerResponse> orderServiceRoute(){
         return route("order_service")
-                .route(RequestPredicates.path("/api/order"), HandlerFunctions.http("http://localhost:8082"))
+                .route(RequestPredicates.path("/api/order"), HandlerFunctions.http(orderServiceUrl))
                 .filter(CircuitBreakerFilterFunctions.circuitBreaker("orderServiceCb", URI.create("forward:/fallbackRoute")))
                 .build();
     }
@@ -48,24 +56,24 @@ public class Routes {
     @Bean
     public RouterFunction<ServerResponse> orderServiceDocs(){
         return route("order_service_docs")
-                .route(RequestPredicates.path("/aggregate/order-service/v3/api-docs"), HandlerFunctions.http("http://localhost:8082"))
+                .route(RequestPredicates.path("/aggregate/order-service/v3/api-docs"), HandlerFunctions.http(orderServiceUrl))
                 .filter(CircuitBreakerFilterFunctions.circuitBreaker("orderServiceDocsCb", URI.create("forward:/fallbackRoute")))
                 .filter(setPath("/api-docs"))
                 .build();
     }
 
-//    @Bean
-//    public RouterFunction<ServerResponse> inventoryServiceRoute(){
-//        return route("inventory_service")
-//                .route(RequestPredicates.path("/api/inventory"), HandlerFunctions.http("http://localhost:8083"))
-//                .filter(CircuitBreakerFilterFunctions.circuitBreaker("inventoryServiceCb", URI.create("forward:/fallbackRoute")))
-//                .build();
-//    }
+    @Bean
+    public RouterFunction<ServerResponse> inventoryServiceRoute(){
+        return route("inventory_service")
+                .route(RequestPredicates.path("/api/inventory"), HandlerFunctions.http(inventoryServiceUrl))
+                .filter(CircuitBreakerFilterFunctions.circuitBreaker("inventoryServiceCb", URI.create("forward:/fallbackRoute")))
+                .build();
+    }
 
     @Bean
     public RouterFunction<ServerResponse> inventoryServiceDocs(){
         return route("inventory_service_docs")
-                .route(RequestPredicates.path("/aggregate/inventory-service/v3/api-docs"), HandlerFunctions.http("http://localhost:8083"))
+                .route(RequestPredicates.path("/aggregate/inventory-service/v3/api-docs"), HandlerFunctions.http(inventoryServiceUrl))
                 .filter(CircuitBreakerFilterFunctions.circuitBreaker("inventoryServiceDocsCb", URI.create("forward:/fallbackRoute")))
                 .filter(setPath("/api-docs"))
                 .build();

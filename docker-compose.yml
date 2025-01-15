@@ -2,27 +2,27 @@ version: '3.8'
 services:
   keycloak-mysql:
     container_name: keycloak-mysql
-    image: mysql:latest
+    image: mysql:9.0
     volumes:
       - ./volume-data/mysql_keycloak_data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootPassword
       MYSQL_DATABASE: keycloakDb
       MYSQL_USER: admin
       MYSQL_PASSWORD: password
 
   keycloak:
     container_name: keycloak
-    image: keycloak/keycloak:latest
+    image: keycloak/keycloak:26.0
     command: [ "start-dev", "--import-realm" ] #start in development mode -> import realm configs in provided directory
     environment:
       DB_VENDOR: MYSQL
       DB_ADDR: keycloak-mysql #POINTS TO MYSQL DATABASE
       DB_DATABASE: keycloakDb
       DB_USER: admin
-      DB_PASSWORD: password
+      DB_PASSWORD: DbPassword
       KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: password
+      KEYCLOAK_ADMIN_PASSWORD: KeycloakPassword
     ports:
       - "8181:8080"
     volumes:
